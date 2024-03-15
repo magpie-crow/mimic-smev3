@@ -1,0 +1,37 @@
+version: "2"
+services:
+  mimic-smev-service:
+    build:
+      context: ..
+      dockerfile: container/Dockerfile
+    command: java  -Dspring.profiles.active=docker -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8 "-agentlib:jdwp=transport=dt_socket,address=*:5005,server=y,suspend=n" -jar /opt/app/app.jar
+    image: mimic-smev-service/mimic-smev-service
+    ports:
+      - '8080:8080'
+      - '5005:5005'
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 768M
+        reservations:
+          cpus: "0.5"
+          memory: 768M
+    depends_on:
+      - postgres
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mimic
+    ports:
+      - '5432:5432'
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          cpus: "0.5"
+          memory: 128M
